@@ -1,0 +1,131 @@
+/*!
+ * Generated with CSS Flag Sprite generator (https://www.flag-sprites.com/)
+ */
+
+.flag {
+    display: inline-block;
+    width: 48px;
+    height: 48px;
+    background: url('flags.png') no-repeat;
+}
+
+
+.flag.flag-ph {
+    background-position: -192px -144px;
+}
+
+.flag.flag-za {
+    background-position: 0 -240px;
+}
+
+.flag.flag-hk {
+    background-position: -192px -48px;
+}
+
+.flag.flag-id {
+    background-position: 0 -96px;
+}
+
+.flag.flag-au {
+    background-position: -48px 0;
+}
+
+.flag.flag-il {
+    background-position: -48px -96px;
+}
+
+.flag.flag-sg {
+    background-position: -144px -192px;
+}
+
+.flag.flag-kr {
+    background-position: -240px -96px;
+}
+
+.flag.flag-se {
+    background-position: -96px -192px;
+}
+
+.flag.flag-is {
+    background-position: -144px -96px;
+}
+
+.flag.flag-ro {
+    background-position: 0 -192px;
+}
+
+.flag.flag-th {
+    background-position: -192px -192px;
+}
+
+.flag.flag-tr {
+    background-position: -240px -192px;
+}
+
+.flag.flag-pl {
+    background-position: -240px -144px;
+}
+
+.flag.flag-cn {
+    background-position: 0 -48px;
+}
+
+.flag.flag-nz {
+    background-position: -144px -144px;
+}
+
+.flag.flag-jp {
+    background-position: -192px -96px;
+}
+
+.flag.flag-br {
+    background-position: -144px 0;
+}
+
+.flag.flag-gs {
+    background-position: -144px -48px;
+}
+
+.flag.flag-bg {
+    background-position: -96px 0;
+}
+
+.flag.flag-cz {
+    background-position: -48px -48px;
+}
+
+.flag.flag-my {
+    background-position: -48px -144px;
+}
+
+.flag.flag-ru {
+    background-position: -48px -192px;
+}
+
+.flag.flag-ca {
+    background-position: -192px 0;
+}
+
+.flag.flag-in {
+    background-position: -96px -96px;
+}
+
+.flag.flag-mx {
+    background-position: 0 -144px;
+}
+
+.flag.flag-hu {
+    background-position: -240px -48px;
+}
+
+.flag.flag-dk {
+    background-position: -96px -48px;
+}
+
+.flag.flag-ch {
+    background-position: -240px 0;
+}
+
+.flag.flag-no {
+    background-position: -96px -144px;
+}

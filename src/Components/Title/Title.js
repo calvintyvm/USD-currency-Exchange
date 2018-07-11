@@ -4,6 +4,9 @@ import styled from "styled-components";
 const Title = () => (
   <TitleWrapper>
     <h1>USD Currency Exchange</h1>
+    <h2>
+      Input your desired amount to convert to any of these currencies below!
+    </h2>
   </TitleWrapper>
 );
 
