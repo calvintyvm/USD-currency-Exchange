@@ -45,9 +45,13 @@ input[type="number"]::-webkit-outer-spin-button {
 img {
   position: absolute;
   right: 0px;
-  top: -50px;
+  top: -80px;
 }
 
 input[type="text"] {
   text-align: left !important;
+}
+
+.MuiFormControl-root-30 {
+  height: 200px;
 }
