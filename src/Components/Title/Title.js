@@ -14,6 +14,8 @@ export default Title;
 
 const TitleWrapper = styled.div`
   height: 200px;
+  width: 80%;
+  margin: 0 auto;
   h1 {
     margin-top: 150px;
   }

@@ -10,13 +10,24 @@ import Input from "@material-ui/core/Input";
 import InputLabel from "@material-ui/core/InputLabel";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import Flag from "react-world-flags";
+import moment from "moment";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowUp, faArrowDown } from "@fortawesome/free-solid-svg-icons";
 
+let yesterdaysDate = moment()
+  .subtract(1, "days")
+  .format("YYYY-MM-DD")
+  .split("/")
+  .join("-");
+
+const yesterdayAPI = `https://exchangeratesapi.io/api/${yesterdaysDate}?base=USD`;
 const usdAPI = "https://exchangeratesapi.io/api/latest?base=USD ";
-
+console.log(yesterdaysDate);
 class Exchange extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      yesterdayData: [],
       data: [],
       input1: 1,
       input2: 1,
@@ -48,8 +59,7 @@ class Exchange extends Component {
       input28: 1,
       input29: 1,
       input30: 1,
-      input31: 1,
-      input32: 0
+      input31: 1
     };
   }
 
@@ -57,31 +67,41 @@ class Exchange extends Component {
     fetch(usdAPI)
       .then(response => response.json())
       .then(data => this.setState({ data }));
+
+    fetch(yesterdayAPI)
+      .then(response => response.json())
+      .then(data => this.setState({ yesterdayData: data }));
   }
 
-  roundToTwo(num) {
-    return +(Math.round(num + "e+2") + "e-2");
+  roundToThree(num) {
+    return Math.round(num * 10000) / 10000;
+  }
+
+  minusPrice(today, yesterday) {
+    return today - yesterday;
   }
 
   render() {
+    {
+      this.roundToThree(
+        this.minusPrice(
+          this.state.data.rates && this.state.data.rates.AUD,
+          this.state.yesterdayData.rates && this.state.yesterdayData.rates.AUD
+        )
+      );
+    }
+
+    let masterFunction = (today, yesterday) => {
+      return this.roundToThree(this.minusPrice(today, yesterday));
+    };
     return (
       <Wrapper>
         <ListContainer>
+          {console.log(this.state.yesterdayData)}
           <li>
             <h2>Australian Dollar</h2>
             <Card>
               <CardContent className="card">
-                {/* <TextField
-                  id="with-placeholder"
-                  label="Australian Dollar"
-                  placeholder="Enter Here"
-                  className="textField"
-                  margin="normal"
-                  type="number"
-                  onChange={e => {
-                    this.setState({ input1: e.target.value });
-                  }}
-                /> */}
                 <FormControl fullWidth>
                   <InputLabel htmlFor="adornment-amount">Amount</InputLabel>
                   <Input
@@ -99,7 +119,7 @@ class Exchange extends Component {
                 <RateContainer>
                   <Flag code="aus" height="30" />
                   <p>
-                    {this.roundToTwo(
+                    {this.roundToThree(
                       this.state.data.rates &&
                         this.state.data.rates.AUD * this.state.input1
                     )}
@@ -108,6 +128,28 @@ class Exchange extends Component {
                 </RateContainer>
               </CardContent>
             </Card>
+            <ChangeContainer>
+              <FontAwesomeIcon
+                icon={
+                  masterFunction(
+                    this.state.data.rates && this.state.data.rates.AUD,
+                    this.state.yesterdayData.rates &&
+                      this.state.yesterdayData.rates.AUD
+                  ) > 0
+                    ? faArrowUp
+                    : faArrowDown
+                }
+                style={{ color: "green" }}
+              />
+              <h2>
+                {masterFunction(
+                  this.state.data.rates && this.state.data.rates.AUD,
+                  this.state.yesterdayData.rates &&
+                    this.state.yesterdayData.rates.AUD
+                )}
+                USD
+              </h2>
+            </ChangeContainer>
           </li>
           <li>
             <h2>Bulgarian Lev</h2>
@@ -130,7 +172,7 @@ class Exchange extends Component {
                 <RateContainer>
                   <Flag code="bg" height="30" />
                   <p className="rate">
-                    {this.roundToTwo(
+                    {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.BGN
                     ) * this.state.input2}
                   </p>
@@ -160,7 +202,7 @@ class Exchange extends Component {
                 <RateContainer>
                   <Flag code="br" height="30" />
                   <p>
-                    {this.roundToTwo(
+                    {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.BRL
                     ) * this.state.input3}
                   </p>
@@ -168,6 +210,28 @@ class Exchange extends Component {
                 </RateContainer>
               </CardContent>
             </Card>
+            <ChangeContainer>
+              <FontAwesomeIcon
+                icon={
+                  masterFunction(
+                    this.state.data.rates && this.state.data.rates.BRL,
+                    this.state.yesterdayData.rates &&
+                      this.state.yesterdayData.rates.BRL
+                  ) > 0
+                    ? faArrowUp
+                    : faArrowDown
+                }
+                style={{ color: "red" }}
+              />
+              <h2>
+                {masterFunction(
+                  this.state.data.rates && this.state.data.rates.BRL,
+                  this.state.yesterdayData.rates &&
+                    this.state.yesterdayData.rates.BRL
+                )}
+                USD
+              </h2>
+            </ChangeContainer>
           </li>
           <li>
             <h2>Canadian Dollar</h2>
@@ -190,7 +254,7 @@ class Exchange extends Component {
                 <RateContainer>
                   <Flag code="ca" height="30" />
                   <p>
-                    {this.roundToTwo(
+                    {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.CAD
                     ) * this.state.input4}
                   </p>
@@ -220,7 +284,7 @@ class Exchange extends Component {
                 <RateContainer>
                   <Flag code="ch" height="30" />
                   <p>
-                    {this.roundToTwo(
+                    {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.CHF
                     ) * this.state.input5}
                   </p>
@@ -250,7 +314,7 @@ class Exchange extends Component {
                 <RateContainer>
                   <Flag code="cn" height="30" />
                   <p>
-                    {this.roundToTwo(
+                    {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.CNY
                     ) * this.state.input6}
                   </p>
@@ -280,7 +344,7 @@ class Exchange extends Component {
                 <RateContainer>
                   <Flag code="cz" height="30" />
                   <p>
-                    {this.roundToTwo(
+                    {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.CZK
                     ) * this.state.input7}
                   </p>
@@ -310,7 +374,7 @@ class Exchange extends Component {
                 <RateContainer>
                   <Flag code="dk" height="30" />
                   <p>
-                    {this.roundToTwo(
+                    {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.DKK
                     ) * this.state.input8}
                   </p>
@@ -340,7 +404,7 @@ class Exchange extends Component {
                 <RateContainer>
                   <Flag code="e" height="30" />
                   <p>
-                    {this.roundToTwo(
+                    {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.EUR
                     ) * this.state.input9}
                   </p>
@@ -370,7 +434,7 @@ class Exchange extends Component {
                 <RateContainer>
                   <Flag code="gb" height="30" />
                   <p>
-                    {this.roundToTwo(
+                    {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.GBP
                     ) * this.state.input10}
                   </p>
@@ -400,7 +464,7 @@ class Exchange extends Component {
                 <RateContainer>
                   <Flag code="hk" height="30" />
                   <p>
-                    {this.roundToTwo(
+                    {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.HKD
                     ) * this.state.input11}
                   </p>
@@ -430,7 +494,7 @@ class Exchange extends Component {
                 <RateContainer>
                   <Flag code="hu" height="30" />
                   <p>
-                    {this.roundToTwo(
+                    {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.HUF
                     ) * this.state.input12}
                   </p>
@@ -460,7 +524,7 @@ class Exchange extends Component {
                 <RateContainer>
                   <Flag code="id" height="30" />
                   <p>
-                    {this.roundToTwo(
+                    {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.IDR
                     ) * this.state.input13}
                   </p>
@@ -490,7 +554,7 @@ class Exchange extends Component {
                 <RateContainer>
                   <Flag code="il" height="30" />
                   <p>
-                    {this.roundToTwo(
+                    {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.ILS
                     ) * this.state.input14}
                   </p>
@@ -520,7 +584,7 @@ class Exchange extends Component {
                 <RateContainer>
                   <Flag code="in" height="30" />
                   <p>
-                    {this.roundToTwo(
+                    {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.INR
                     ) * this.state.input15}
                   </p>
@@ -550,7 +614,7 @@ class Exchange extends Component {
                 <RateContainer>
                   <Flag code="is" height="30" />
                   <p>
-                    {this.roundToTwo(
+                    {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.ISK
                     ) * this.state.input16}
                   </p>
@@ -580,7 +644,7 @@ class Exchange extends Component {
                 <RateContainer>
                   <Flag code="jp" height="30" />
                   <p>
-                    {this.roundToTwo(
+                    {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.JPY
                     ) * this.state.input17}
                   </p>
@@ -610,7 +674,7 @@ class Exchange extends Component {
                 <RateContainer>
                   <Flag code="kr" height="30" />
                   <p>
-                    {this.roundToTwo(
+                    {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.KRW
                     ) * this.state.input18}
                   </p>
@@ -640,7 +704,7 @@ class Exchange extends Component {
                 <RateContainer>
                   <Flag code="mx" height="30" />
                   <p>
-                    {this.roundToTwo(
+                    {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.MXN
                     ) * this.state.input19}
                   </p>
@@ -670,7 +734,7 @@ class Exchange extends Component {
                 <RateContainer>
                   <Flag code="my" height="30" />
                   <p>
-                    {this.roundToTwo(
+                    {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.MYR
                     ) * this.state.input20}
                   </p>
@@ -700,7 +764,7 @@ class Exchange extends Component {
                 <RateContainer>
                   <Flag code="no" height="30" />
                   <p>
-                    {this.roundToTwo(
+                    {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.NOK
                     ) * this.state.input21}
                   </p>
@@ -730,7 +794,7 @@ class Exchange extends Component {
                 <RateContainer>
                   <Flag code="nz" height="30" />
                   <p>
-                    {this.roundToTwo(
+                    {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.NZD
                     ) * this.state.input22}
                   </p>
@@ -760,7 +824,7 @@ class Exchange extends Component {
                 <RateContainer>
                   <Flag code="ph" height="30" />
                   <p>
-                    {this.roundToTwo(
+                    {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.PHP
                     ) * this.state.input23}
                   </p>
@@ -790,7 +854,7 @@ class Exchange extends Component {
                 <RateContainer>
                   <p>
                     <Flag code="pl" height="30" />
-                    {this.roundToTwo(
+                    {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.PLN
                     ) * this.state.input24}
                   </p>
@@ -820,7 +884,7 @@ class Exchange extends Component {
                 <RateContainer>
                   <Flag code="ro" height="30" />
                   <p>
-                    {this.roundToTwo(
+                    {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.RON
                     ) * this.state.input25}
                   </p>
@@ -850,7 +914,7 @@ class Exchange extends Component {
                 <RateContainer>
                   <Flag code="ru" height="30" />
                   <p>
-                    {this.roundToTwo(
+                    {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.RUB
                     ) * this.state.input26}
                   </p>
@@ -880,7 +944,7 @@ class Exchange extends Component {
                 <RateContainer>
                   <Flag code="se" height="30" />
                   <p>
-                    {this.roundToTwo(
+                    {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.SEK
                     ) * this.state.input27}
                   </p>
@@ -910,7 +974,7 @@ class Exchange extends Component {
                 <RateContainer>
                   <Flag code="sg" height="30" />
                   <p>
-                    {this.roundToTwo(
+                    {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.SGD
                     ) * this.state.input28}
                   </p>
@@ -940,7 +1004,7 @@ class Exchange extends Component {
                 <RateContainer>
                   <Flag code="th" height="30" />
                   <p>
-                    {this.roundToTwo(
+                    {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.THB
                     ) * this.state.input29}
                   </p>
@@ -970,7 +1034,7 @@ class Exchange extends Component {
                 <RateContainer>
                   <Flag code="tr" height="30" />
                   <p>
-                    {this.roundToTwo(
+                    {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.TRY
                     ) * this.state.input30}
                   </p>
@@ -1001,12 +1065,12 @@ class Exchange extends Component {
                   <Flag code="za" height="30" />
                   {/* {this.state.input31 == 0
                     ? "Enter USD"
-                    : `${this.roundToTwo(
+                    : `${this.roundToThree(
                         this.state.data.rates && this.state.data.rates.ZAR
                       ) * this.state.input31} ZAR`} */}
                   <Flag code="za" height="30" />
                   <p>
-                    {this.roundToTwo(
+                    {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.ZAR
                     ) * this.state.input31}
                   </p>
@@ -1031,6 +1095,9 @@ const Wrapper = styled.div`
 const ListContainer = styled.ul`
   justify-content: space-between;
   padding-left: 0px;
+  @media (max-width: 600px) {
+    justify-content: center;
+  }
 `;
 
 const RateContainer = styled.div`
@@ -1041,4 +1108,13 @@ const RateContainer = styled.div`
   p:nth-child(3) {
     font-weight: bold;
   }
+`;
+
+const ChangeContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 70%;
+  margin: 0 auto;
 `;
