@@ -1,18 +1,50 @@
 import React, { Component } from "react";
 import Card from "@material-ui/core/Card";
-import CardActions from "@material-ui/core/CardActions";
 import "./styles.css";
 import CardContent from "@material-ui/core/CardContent";
 import styled from "styled-components";
-import TextField from "@material-ui/core/TextField";
 import FormControl from "@material-ui/core/FormControl";
 import Input from "@material-ui/core/Input";
 import InputLabel from "@material-ui/core/InputLabel";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import Flag from "react-world-flags";
 import moment from "moment";
+import { connect } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUp, faArrowDown } from "@fortawesome/free-solid-svg-icons";
+import {
+  setAudPrice,
+  setBgnPrice,
+  setBrlPrice,
+  setCadPrice,
+  setChfPrice,
+  setCnyPrice,
+  setCzkPrice,
+  setDkkPrice,
+  setEurPrice,
+  setGbpPrice,
+  setHkdPrice,
+  setHufPrice,
+  setIdrPrice,
+  setIlsPrice,
+  setInrPrice,
+  setIskPrice,
+  setJpyPrice,
+  setKrwPrice,
+  setMxnPrice,
+  setMyrPrice,
+  setNokPrice,
+  setNzdPrice,
+  setPhpPrice,
+  setPlnPrice,
+  setRonPrice,
+  setRubPrice,
+  setSekPrice,
+  setSgdPrice,
+  setThbPrice,
+  setTryPrice,
+  setZarPrice
+} from "../../redux/modules/SetPrice";
 
 let yesterdaysDate = moment()
   .subtract(1, "days")
@@ -28,38 +60,7 @@ class Exchange extends Component {
     super(props);
     this.state = {
       yesterdayData: [],
-      data: [],
-      input1: 1,
-      input2: 1,
-      input3: 1,
-      input4: 1,
-      input5: 1,
-      input6: 1,
-      input7: 1,
-      input8: 1,
-      input9: 1,
-      input10: 1,
-      input11: 1,
-      input12: 1,
-      input13: 1,
-      input14: 1,
-      input15: 1,
-      input16: 1,
-      input17: 1,
-      input18: 1,
-      input19: 1,
-      input20: 1,
-      input21: 1,
-      input22: 1,
-      input23: 1,
-      input24: 1,
-      input25: 1,
-      input26: 1,
-      input27: 1,
-      input28: 1,
-      input29: 1,
-      input30: 1,
-      input31: 1
+      data: []
     };
   }
 
@@ -97,7 +98,6 @@ class Exchange extends Component {
     return (
       <Wrapper>
         <ListContainer>
-          {console.log(this.state.yesterdayData)}
           <li>
             <h2>Australian Dollar</h2>
             <Card>
@@ -107,9 +107,9 @@ class Exchange extends Component {
                   <Input
                     id="adornment-amount"
                     onChange={e => {
-                      this.setState({ input1: e.target.value });
+                      this.props.dispatch(setAudPrice(e.target.value));
                     }}
-                    value={this.state.input1}
+                    value={this.props.aud}
                     startAdornment={
                       <InputAdornment position="start">USD</InputAdornment>
                     }
@@ -121,7 +121,7 @@ class Exchange extends Component {
                   <p>
                     {this.roundToThree(
                       this.state.data.rates &&
-                        this.state.data.rates.AUD * this.state.input1
+                        this.state.data.rates.AUD * this.props.aud
                     )}
                   </p>
                   <p> AUD</p>
@@ -160,9 +160,9 @@ class Exchange extends Component {
                   <Input
                     id="adornment-amount"
                     onChange={e => {
-                      this.setState({ input2: e.target.value });
+                      this.props.dispatch(setBgnPrice(e.target.value));
                     }}
-                    value={this.state.input2}
+                    value={this.props.bgn}
                     startAdornment={
                       <InputAdornment position="start">USD</InputAdornment>
                     }
@@ -174,7 +174,7 @@ class Exchange extends Component {
                   <p className="rate">
                     {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.BGN
-                    ) * this.state.input2}
+                    ) * this.props.bgn}
                   </p>
                   <p> BGN</p>
                 </RateContainer>
@@ -190,9 +190,9 @@ class Exchange extends Component {
                   <Input
                     id="adornment-amount"
                     onChange={e => {
-                      this.setState({ input3: e.target.value });
+                      this.props.dispatch(setBrlPrice(e.target.value));
                     }}
-                    value={this.state.input3}
+                    value={this.props.brl}
                     startAdornment={
                       <InputAdornment position="start">USD</InputAdornment>
                     }
@@ -204,7 +204,7 @@ class Exchange extends Component {
                   <p>
                     {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.BRL
-                    ) * this.state.input3}
+                    ) * this.props.brl}
                   </p>
                   <p>BRL</p>
                 </RateContainer>
@@ -221,7 +221,7 @@ class Exchange extends Component {
                     ? faArrowUp
                     : faArrowDown
                 }
-                style={{ color: "red" }}
+                style={{ color: "green" }}
               />
               <h2>
                 {masterFunction(
@@ -242,9 +242,9 @@ class Exchange extends Component {
                   <Input
                     id="adornment-amount"
                     onChange={e => {
-                      this.setState({ input4: e.target.value });
+                      this.props.dispatch(setCadPrice(e.target.value));
                     }}
-                    value={this.state.input4}
+                    value={this.props.cad}
                     startAdornment={
                       <InputAdornment position="start">USD</InputAdornment>
                     }
@@ -256,7 +256,7 @@ class Exchange extends Component {
                   <p>
                     {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.CAD
-                    ) * this.state.input4}
+                    ) * this.props.cad}
                   </p>
                   <p> CAD </p>
                 </RateContainer>
@@ -272,9 +272,9 @@ class Exchange extends Component {
                   <Input
                     id="adornment-amount"
                     onChange={e => {
-                      this.setState({ input5: e.target.value });
+                      this.props.dispatch(setChfPrice(e.target.value));
                     }}
-                    value={this.state.input5}
+                    value={this.props.chf}
                     startAdornment={
                       <InputAdornment position="start">USD</InputAdornment>
                     }
@@ -286,7 +286,7 @@ class Exchange extends Component {
                   <p>
                     {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.CHF
-                    ) * this.state.input5}
+                    ) * this.props.chf}
                   </p>
                   <p>CHF</p>
                 </RateContainer>
@@ -302,9 +302,9 @@ class Exchange extends Component {
                   <Input
                     id="adornment-amount"
                     onChange={e => {
-                      this.setState({ input6: e.target.value });
+                      this.props.dispatch(setCnyPrice(e.target.value));
                     }}
-                    value={this.state.input6}
+                    value={this.props.cny}
                     startAdornment={
                       <InputAdornment position="start">USD</InputAdornment>
                     }
@@ -316,7 +316,7 @@ class Exchange extends Component {
                   <p>
                     {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.CNY
-                    ) * this.state.input6}
+                    ) * this.props.cny}
                   </p>
                   <p>CNY</p>
                 </RateContainer>
@@ -332,9 +332,9 @@ class Exchange extends Component {
                   <Input
                     id="adornment-amount"
                     onChange={e => {
-                      this.setState({ input7: e.target.value });
+                      this.props.dispatch(setCzkPrice(e.target.value));
                     }}
-                    value={this.state.input7}
+                    value={this.props.czk}
                     startAdornment={
                       <InputAdornment position="start">USD</InputAdornment>
                     }
@@ -346,7 +346,7 @@ class Exchange extends Component {
                   <p>
                     {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.CZK
-                    ) * this.state.input7}
+                    ) * this.props.czk}
                   </p>
                   <p>CZK</p>
                 </RateContainer>
@@ -362,9 +362,9 @@ class Exchange extends Component {
                   <Input
                     id="adornment-amount"
                     onChange={e => {
-                      this.setState({ input8: e.target.value });
+                      this.props.dispatch(setDkkPrice(e.target.value));
                     }}
-                    value={this.state.input8}
+                    value={this.props.dkk}
                     startAdornment={
                       <InputAdornment position="start">USD</InputAdornment>
                     }
@@ -376,7 +376,7 @@ class Exchange extends Component {
                   <p>
                     {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.DKK
-                    ) * this.state.input8}
+                    ) * this.props.dkk}
                   </p>
                   <p>DKK</p>
                 </RateContainer>
@@ -392,9 +392,9 @@ class Exchange extends Component {
                   <Input
                     id="adornment-amount"
                     onChange={e => {
-                      this.setState({ input9: e.target.value });
+                      this.props.dispatch(setEurPrice(e.target.value));
                     }}
-                    value={this.state.input9}
+                    value={this.props.eur}
                     startAdornment={
                       <InputAdornment position="start">USD</InputAdornment>
                     }
@@ -406,7 +406,7 @@ class Exchange extends Component {
                   <p>
                     {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.EUR
-                    ) * this.state.input9}
+                    ) * this.props.eur}
                   </p>
                   <p>EUR</p>
                 </RateContainer>
@@ -422,9 +422,9 @@ class Exchange extends Component {
                   <Input
                     id="adornment-amount"
                     onChange={e => {
-                      this.setState({ input10: e.target.value });
+                      this.props.dispatch(setGbpPrice(e.target.value));
                     }}
-                    value={this.state.input10}
+                    value={this.props.gbp}
                     startAdornment={
                       <InputAdornment position="start">USD</InputAdornment>
                     }
@@ -436,7 +436,7 @@ class Exchange extends Component {
                   <p>
                     {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.GBP
-                    ) * this.state.input10}
+                    ) * this.props.gbp}
                   </p>
                   <p>GBP</p>
                 </RateContainer>
@@ -452,9 +452,9 @@ class Exchange extends Component {
                   <Input
                     id="adornment-amount"
                     onChange={e => {
-                      this.setState({ input11: e.target.value });
+                      this.props.dispatch(setHkdPrice(e.target.value));
                     }}
-                    value={this.state.input11}
+                    value={this.props.hkd}
                     startAdornment={
                       <InputAdornment position="start">USD</InputAdornment>
                     }
@@ -466,7 +466,7 @@ class Exchange extends Component {
                   <p>
                     {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.HKD
-                    ) * this.state.input11}
+                    ) * this.props.hkd}
                   </p>
                   <p>HKD</p>
                 </RateContainer>
@@ -482,9 +482,9 @@ class Exchange extends Component {
                   <Input
                     id="adornment-amount"
                     onChange={e => {
-                      this.setState({ input12: e.target.value });
+                      this.props.dispatch(setHufPrice(e.target.value));
                     }}
-                    value={this.state.input12}
+                    value={this.props.huf}
                     startAdornment={
                       <InputAdornment position="start">USD</InputAdornment>
                     }
@@ -496,7 +496,7 @@ class Exchange extends Component {
                   <p>
                     {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.HUF
-                    ) * this.state.input12}
+                    ) * this.props.huf}
                   </p>
                   <p>HUF</p>
                 </RateContainer>
@@ -512,9 +512,9 @@ class Exchange extends Component {
                   <Input
                     id="adornment-amount"
                     onChange={e => {
-                      this.setState({ input13: e.target.value });
+                      this.props.dispatch(setIdrPrice(e.target.value));
                     }}
-                    value={this.state.input13}
+                    value={this.props.idr}
                     startAdornment={
                       <InputAdornment position="start">USD</InputAdornment>
                     }
@@ -526,7 +526,7 @@ class Exchange extends Component {
                   <p>
                     {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.IDR
-                    ) * this.state.input13}
+                    ) * this.props.idr}
                   </p>
                   <p>IDR</p>
                 </RateContainer>
@@ -542,9 +542,9 @@ class Exchange extends Component {
                   <Input
                     id="adornment-amount"
                     onChange={e => {
-                      this.setState({ input14: e.target.value });
+                      this.props.dispatch(setIlsPrice(e.target.value));
                     }}
-                    value={this.state.input14}
+                    value={this.props.ils}
                     startAdornment={
                       <InputAdornment position="start">USD</InputAdornment>
                     }
@@ -556,7 +556,7 @@ class Exchange extends Component {
                   <p>
                     {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.ILS
-                    ) * this.state.input14}
+                    ) * this.props.ils}
                   </p>
                   <p>ILS</p>
                 </RateContainer>
@@ -572,9 +572,9 @@ class Exchange extends Component {
                   <Input
                     id="adornment-amount"
                     onChange={e => {
-                      this.setState({ input15: e.target.value });
+                      this.props.dispatch(setInrPrice(e.target.value));
                     }}
-                    value={this.state.input15}
+                    value={this.props.inr}
                     startAdornment={
                       <InputAdornment position="start">USD</InputAdornment>
                     }
@@ -586,7 +586,7 @@ class Exchange extends Component {
                   <p>
                     {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.INR
-                    ) * this.state.input15}
+                    ) * this.props.inr}
                   </p>
                   <p>INR</p>
                 </RateContainer>
@@ -602,9 +602,9 @@ class Exchange extends Component {
                   <Input
                     id="adornment-amount"
                     onChange={e => {
-                      this.setState({ input16: e.target.value });
+                      this.props.dispatch(setIskPrice(e.target.value));
                     }}
-                    value={this.state.input16}
+                    value={this.props.isk}
                     startAdornment={
                       <InputAdornment position="start">USD</InputAdornment>
                     }
@@ -616,7 +616,7 @@ class Exchange extends Component {
                   <p>
                     {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.ISK
-                    ) * this.state.input16}
+                    ) * this.props.isk}
                   </p>
                   <p>ISK</p>
                 </RateContainer>
@@ -632,9 +632,9 @@ class Exchange extends Component {
                   <Input
                     id="adornment-amount"
                     onChange={e => {
-                      this.setState({ input17: e.target.value });
+                      this.props.dispatch(setJpyPrice(e.target.value));
                     }}
-                    value={this.state.input17}
+                    value={this.props.jpy}
                     startAdornment={
                       <InputAdornment position="start">USD</InputAdornment>
                     }
@@ -646,7 +646,7 @@ class Exchange extends Component {
                   <p>
                     {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.JPY
-                    ) * this.state.input17}
+                    ) * this.props.jpy}
                   </p>
                   <p>JPY</p>
                 </RateContainer>
@@ -662,9 +662,9 @@ class Exchange extends Component {
                   <Input
                     id="adornment-amount"
                     onChange={e => {
-                      this.setState({ input18: e.target.value });
+                      this.props.dispatch(setKrwPrice(e.target.value));
                     }}
-                    value={this.state.input18}
+                    value={this.props.krw}
                     startAdornment={
                       <InputAdornment position="start">USD</InputAdornment>
                     }
@@ -676,7 +676,7 @@ class Exchange extends Component {
                   <p>
                     {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.KRW
-                    ) * this.state.input18}
+                    ) * this.state.krw}
                   </p>
                   <p>KRW</p>
                 </RateContainer>
@@ -692,9 +692,9 @@ class Exchange extends Component {
                   <Input
                     id="adornment-amount"
                     onChange={e => {
-                      this.setState({ input19: e.target.value });
+                      this.props.dispatch(setMxnPrice(e.target.value));
                     }}
-                    value={this.state.input19}
+                    value={this.props.mxn}
                     startAdornment={
                       <InputAdornment position="start">USD</InputAdornment>
                     }
@@ -706,7 +706,7 @@ class Exchange extends Component {
                   <p>
                     {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.MXN
-                    ) * this.state.input19}
+                    ) * this.props.mxn}
                   </p>
                   <p>MXN</p>
                 </RateContainer>
@@ -722,9 +722,9 @@ class Exchange extends Component {
                   <Input
                     id="adornment-amount"
                     onChange={e => {
-                      this.setState({ input20: e.target.value });
+                      this.props.dispatch(setMyrPrice(e.target.value));
                     }}
-                    value={this.state.input20}
+                    value={this.props.myr}
                     startAdornment={
                       <InputAdornment position="start">USD</InputAdornment>
                     }
@@ -736,7 +736,7 @@ class Exchange extends Component {
                   <p>
                     {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.MYR
-                    ) * this.state.input20}
+                    ) * this.props.myr}
                   </p>
                   <p>MYR</p>
                 </RateContainer>
@@ -752,9 +752,9 @@ class Exchange extends Component {
                   <Input
                     id="adornment-amount"
                     onChange={e => {
-                      this.setState({ input21: e.target.value });
+                      this.props.dispatch(setNokPrice(e.target.value));
                     }}
-                    value={this.state.input21}
+                    value={this.props.nok}
                     startAdornment={
                       <InputAdornment position="start">USD</InputAdornment>
                     }
@@ -766,7 +766,7 @@ class Exchange extends Component {
                   <p>
                     {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.NOK
-                    ) * this.state.input21}
+                    ) * this.props.nok}
                   </p>
                   <p>NOK</p>
                 </RateContainer>
@@ -782,9 +782,9 @@ class Exchange extends Component {
                   <Input
                     id="adornment-amount"
                     onChange={e => {
-                      this.setState({ input22: e.target.value });
+                      this.props.dispatch(setNzdPrice(e.target.value));
                     }}
-                    value={this.state.input22}
+                    value={this.props.nzd}
                     startAdornment={
                       <InputAdornment position="start">USD</InputAdornment>
                     }
@@ -796,7 +796,7 @@ class Exchange extends Component {
                   <p>
                     {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.NZD
-                    ) * this.state.input22}
+                    ) * this.props.nzd}
                   </p>
                   <p>NZD</p>
                 </RateContainer>
@@ -812,9 +812,9 @@ class Exchange extends Component {
                   <Input
                     id="adornment-amount"
                     onChange={e => {
-                      this.setState({ input23: e.target.value });
+                      this.props.dispatch(setPhpPrice(e.target.value));
                     }}
-                    value={this.state.input23}
+                    value={this.props.php}
                     startAdornment={
                       <InputAdornment position="start">USD</InputAdornment>
                     }
@@ -826,7 +826,7 @@ class Exchange extends Component {
                   <p>
                     {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.PHP
-                    ) * this.state.input23}
+                    ) * this.props.php}
                   </p>
                   <p>PHP</p>
                 </RateContainer>
@@ -842,9 +842,9 @@ class Exchange extends Component {
                   <Input
                     id="adornment-amount"
                     onChange={e => {
-                      this.setState({ input24: e.target.value });
+                      this.props.dispatch(setPlnPrice(e.target.value));
                     }}
-                    value={this.state.input24}
+                    value={this.props.pln}
                     startAdornment={
                       <InputAdornment position="start">USD</InputAdornment>
                     }
@@ -856,7 +856,7 @@ class Exchange extends Component {
                     <Flag code="pl" height="30" />
                     {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.PLN
-                    ) * this.state.input24}
+                    ) * this.props.pln}
                   </p>
                   <p>PLN</p>
                 </RateContainer>
@@ -872,9 +872,9 @@ class Exchange extends Component {
                   <Input
                     id="adornment-amount"
                     onChange={e => {
-                      this.setState({ input25: e.target.value });
+                      this.props.dispatch(setRonPrice(e.target.value));
                     }}
-                    value={this.state.input25}
+                    value={this.props.ron}
                     startAdornment={
                       <InputAdornment position="start">USD</InputAdornment>
                     }
@@ -886,7 +886,7 @@ class Exchange extends Component {
                   <p>
                     {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.RON
-                    ) * this.state.input25}
+                    ) * this.props.ron}
                   </p>
                   <p>RON</p>
                 </RateContainer>
@@ -902,9 +902,9 @@ class Exchange extends Component {
                   <Input
                     id="adornment-amount"
                     onChange={e => {
-                      this.setState({ input26: e.target.value });
+                      this.props.dispatch(setRubPrice(e.target.value));
                     }}
-                    value={this.state.input26}
+                    value={this.props.rub}
                     startAdornment={
                       <InputAdornment position="start">USD</InputAdornment>
                     }
@@ -916,7 +916,7 @@ class Exchange extends Component {
                   <p>
                     {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.RUB
-                    ) * this.state.input26}
+                    ) * this.props.rub}
                   </p>
                   <p>RUB</p>
                 </RateContainer>
@@ -932,9 +932,9 @@ class Exchange extends Component {
                   <Input
                     id="adornment-amount"
                     onChange={e => {
-                      this.setState({ input27: e.target.value });
+                      this.props.dispatch(setSekPrice(e.target.value));
                     }}
-                    value={this.state.input27}
+                    value={this.props.sek}
                     startAdornment={
                       <InputAdornment position="start">USD</InputAdornment>
                     }
@@ -946,7 +946,7 @@ class Exchange extends Component {
                   <p>
                     {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.SEK
-                    ) * this.state.input27}
+                    ) * this.props.sek}
                   </p>
                   <p>SEK</p>
                 </RateContainer>
@@ -962,9 +962,9 @@ class Exchange extends Component {
                   <Input
                     id="adornment-amount"
                     onChange={e => {
-                      this.setState({ input28: e.target.value });
+                      this.props.dispatch(setSgdPrice(e.target.value));
                     }}
-                    value={this.state.input28}
+                    value={this.props.sgd}
                     startAdornment={
                       <InputAdornment position="start">USD</InputAdornment>
                     }
@@ -976,7 +976,7 @@ class Exchange extends Component {
                   <p>
                     {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.SGD
-                    ) * this.state.input28}
+                    ) * this.props.sgd}
                   </p>
                   <p>SGD</p>
                 </RateContainer>
@@ -992,9 +992,9 @@ class Exchange extends Component {
                   <Input
                     id="adornment-amount"
                     onChange={e => {
-                      this.setState({ input29: e.target.value });
+                      this.props.dispatch(setThbPrice(e.target.value));
                     }}
-                    value={this.state.input29}
+                    value={this.props.thb}
                     startAdornment={
                       <InputAdornment position="start">USD</InputAdornment>
                     }
@@ -1006,7 +1006,7 @@ class Exchange extends Component {
                   <p>
                     {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.THB
-                    ) * this.state.input29}
+                    ) * this.props.thb}
                   </p>
                   <p>THB</p>
                 </RateContainer>
@@ -1022,9 +1022,9 @@ class Exchange extends Component {
                   <Input
                     id="adornment-amount"
                     onChange={e => {
-                      this.setState({ input30: e.target.value });
+                      this.props.dispatch(setTryPrice(e.target.value));
                     }}
-                    value={this.state.input30}
+                    value={this.props.try}
                     startAdornment={
                       <InputAdornment position="start">USD</InputAdornment>
                     }
@@ -1036,7 +1036,7 @@ class Exchange extends Component {
                   <p>
                     {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.TRY
-                    ) * this.state.input30}
+                    ) * this.props.try}
                   </p>
                   <p>TRY</p>
                 </RateContainer>
@@ -1052,9 +1052,9 @@ class Exchange extends Component {
                   <Input
                     id="adornment-amount"
                     onChange={e => {
-                      this.setState({ input31: e.target.value });
+                      this.props.dispatch(setZarPrice(e.target.value));
                     }}
-                    value={this.state.inpu31}
+                    value={this.props.zar}
                     startAdornment={
                       <InputAdornment position="start">USD</InputAdornment>
                     }
@@ -1072,12 +1072,13 @@ class Exchange extends Component {
                   <p>
                     {this.roundToThree(
                       this.state.data.rates && this.state.data.rates.ZAR
-                    ) * this.state.input31}
+                    ) * this.props.zar}
                   </p>
                   <p>ZAR</p>
                 </RateContainer>
               </CardContent>
             </Card>
+            {console.log(this.props)}
           </li>
         </ListContainer>
       </Wrapper>
@@ -1085,7 +1086,39 @@ class Exchange extends Component {
   }
 }
 
-export default Exchange;
+export default connect(state => ({
+  aud: state.SetPrice.aud,
+  bgn: state.SetPrice.bgn,
+  brl: state.SetPrice.brl,
+  cad: state.SetPrice.cad,
+  chf: state.SetPrice.chf,
+  cny: state.SetPrice.cny,
+  czk: state.SetPrice.czk,
+  dkk: state.SetPrice.dkk,
+  eur: state.SetPrice.eur,
+  gbp: state.SetPrice.gbp,
+  hkd: state.SetPrice.hkd,
+  huf: state.SetPrice.huf,
+  idr: state.SetPrice.idr,
+  ils: state.SetPrice.ils,
+  inr: state.SetPrice.inr,
+  isk: state.SetPrice.isk,
+  jpy: state.SetPrice.jpy,
+  krw: state.SetPrice.krw,
+  mxn: state.SetPrice.mxn,
+  myr: state.SetPrice.myr,
+  nok: state.SetPrice.nok,
+  nzd: state.SetPrice.nzd,
+  php: state.SetPrice.php,
+  pln: state.SetPrice.pln,
+  ron: state.SetPrice.ron,
+  rub: state.SetPrice.rub,
+  sek: state.SetPrice.sek,
+  sgd: state.SetPrice.sgd,
+  thb: state.SetPrice.thb,
+  try: state.SetPrice.try,
+  zar: state.SetPrice.zar
+}))(Exchange);
 
 const Wrapper = styled.div`
   width: 80%;

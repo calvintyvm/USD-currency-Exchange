@@ -1,17 +1,20 @@
 import React, { Component } from "react";
-import logo from "./logo.svg";
+import { Provider } from "react-redux";
+import store from "./redux/store";
+import { injectGlobal } from "styled-components";
 import "./App.css";
 import Exchange from "./Components/Exchange/Exchange";
 import Title from "./Components/Title/Title";
-import { injectGlobal } from "styled-components";
 
 class App extends Component {
   render() {
     return (
-      <div className="App">
-        <Title />
-        <Exchange />
-      </div>
+      <Provider store={store}>
+        <div className="App">
+          <Title />
+          <Exchange />
+        </div>
+      </Provider>
     );
   }
 }
