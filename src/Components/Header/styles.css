@@ -1,0 +1,9 @@
+.appBar {
+  background-color: black !important;
+}
+.toolBar {
+  display: flex;
+  justify-content: space-between;
+  width: 90%;
+  margin: 0 auto;
+}

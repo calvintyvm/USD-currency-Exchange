@@ -7,6 +7,7 @@ import FormControl from "@material-ui/core/FormControl";
 import Input from "@material-ui/core/Input";
 import InputLabel from "@material-ui/core/InputLabel";
 import InputAdornment from "@material-ui/core/InputAdornment";
+import CircularProgress from "@material-ui/core/CircularProgress";
 import Flag from "react-world-flags";
 import moment from "moment";
 import { connect } from "react-redux";
@@ -45,6 +46,11 @@ import {
   setTryPrice,
   setZarPrice
 } from "../../redux/modules/SetPrice";
+import {
+  fetchTodayPrices,
+  fetchYesterdayPrices
+} from "../../redux/modules/PriceChange";
+import Cards from "../Cards/Cards.js";
 
 let yesterdaysDate = moment()
   .subtract(1, "days")
@@ -54,20 +60,25 @@ let yesterdaysDate = moment()
 
 const yesterdayAPI = `https://exchangeratesapi.io/api/${yesterdaysDate}?base=USD`;
 const usdAPI = "https://exchangeratesapi.io/api/latest?base=USD ";
-console.log(yesterdaysDate);
 class Exchange extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      yesterdayData: [],
-      data: []
+      isLoading: false
     };
   }
 
   componentDidMount() {
+    this.props.dispatch(fetchTodayPrices());
+    this.props.dispatch(fetchYesterdayPrices());
+
     fetch(usdAPI)
       .then(response => response.json())
       .then(data => this.setState({ data }));
+
+    fetch(usdAPI)
+      .then(response => response.json())
+      .then(data => this.setState({ test: data.rates, isLoaded: true }));
 
     fetch(yesterdayAPI)
       .then(response => response.json())
@@ -75,26 +86,14 @@ class Exchange extends Component {
   }
 
   roundToThree(num) {
-    return Math.round(num * 10000) / 10000;
-  }
-
-  minusPrice(today, yesterday) {
-    return today - yesterday;
+    return Number.parseFloat(num).toPrecision(5);
   }
 
   render() {
-    {
-      this.roundToThree(
-        this.minusPrice(
-          this.state.data.rates && this.state.data.rates.AUD,
-          this.state.yesterdayData.rates && this.state.yesterdayData.rates.AUD
-        )
-      );
-    }
-
-    let masterFunction = (today, yesterday) => {
-      return this.roundToThree(this.minusPrice(today, yesterday));
+    let calculateDifference = (today, yesterday) => {
+      return this.roundToThree((today - yesterday) / today);
     };
+
     return (
       <Wrapper>
         <ListContainer>
@@ -120,8 +119,7 @@ class Exchange extends Component {
                   <Flag code="aus" height="30" />
                   <p>
                     {this.roundToThree(
-                      this.state.data.rates &&
-                        this.state.data.rates.AUD * this.props.aud
+                      this.props.todayData.AUD * this.props.aud
                     )}
                   </p>
                   <p> AUD</p>
@@ -131,24 +129,31 @@ class Exchange extends Component {
             <ChangeContainer>
               <FontAwesomeIcon
                 icon={
-                  masterFunction(
-                    this.state.data.rates && this.state.data.rates.AUD,
-                    this.state.yesterdayData.rates &&
-                      this.state.yesterdayData.rates.AUD
+                  calculateDifference(
+                    this.props.todayData.AUD,
+                    this.props.yesterdayData.AUD
                   ) > 0
                     ? faArrowUp
                     : faArrowDown
                 }
-                style={{ color: "green" }}
+                style={
+                  calculateDifference(
+                    this.props.todayData.AUD,
+                    this.props.yesterdayData.AUD
+                  ) > 0
+                    ? { color: "green" }
+                    : { color: "red" }
+                }
               />
-              <h2>
-                {masterFunction(
-                  this.state.data.rates && this.state.data.rates.AUD,
-                  this.state.yesterdayData.rates &&
-                    this.state.yesterdayData.rates.AUD
-                )}
-                USD
-              </h2>
+              <div>
+                <h2>
+                  {calculateDifference(
+                    this.props.todayData.AUD,
+                    this.props.yesterdayData.AUD
+                  )}
+                </h2>
+                <h2>USD</h2>
+              </div>
             </ChangeContainer>
           </li>
           <li>
@@ -173,13 +178,42 @@ class Exchange extends Component {
                   <Flag code="bg" height="30" />
                   <p className="rate">
                     {this.roundToThree(
-                      this.state.data.rates && this.state.data.rates.BGN
-                    ) * this.props.bgn}
+                      this.props.todayData.BGN * this.props.bgn
+                    )}
                   </p>
                   <p> BGN</p>
                 </RateContainer>
               </CardContent>
             </Card>
+            <ChangeContainer>
+              <FontAwesomeIcon
+                icon={
+                  calculateDifference(
+                    this.props.todayData.BGN,
+                    this.props.yesterdayData.BGN
+                  ) > 0
+                    ? faArrowUp
+                    : faArrowDown
+                }
+                style={
+                  calculateDifference(
+                    this.props.todayData.BGN,
+                    this.props.yesterdayData.BGN
+                  ) > 0
+                    ? { color: "green" }
+                    : { color: "red" }
+                }
+              />
+              <div>
+                <h2>
+                  {calculateDifference(
+                    this.props.todayData.BGN,
+                    this.props.yesterdayData.BGN
+                  )}
+                </h2>
+                <h2>USD</h2>
+              </div>
+            </ChangeContainer>
           </li>
           <li>
             <h2>Brazilian Real</h2>
@@ -203,8 +237,8 @@ class Exchange extends Component {
                   <Flag code="br" height="30" />
                   <p>
                     {this.roundToThree(
-                      this.state.data.rates && this.state.data.rates.BRL
-                    ) * this.props.brl}
+                      this.props.todayData.BRL * this.props.brl
+                    )}
                   </p>
                   <p>BRL</p>
                 </RateContainer>
@@ -213,24 +247,31 @@ class Exchange extends Component {
             <ChangeContainer>
               <FontAwesomeIcon
                 icon={
-                  masterFunction(
-                    this.state.data.rates && this.state.data.rates.BRL,
-                    this.state.yesterdayData.rates &&
-                      this.state.yesterdayData.rates.BRL
+                  calculateDifference(
+                    this.props.todayData.BRL,
+                    this.props.yesterdayData.BRL
                   ) > 0
                     ? faArrowUp
                     : faArrowDown
                 }
-                style={{ color: "green" }}
+                style={
+                  calculateDifference(
+                    this.props.todayData.BRL,
+                    this.props.yesterdayData.BRL
+                  ) > 0
+                    ? { color: "green" }
+                    : { color: "red" }
+                }
               />
-              <h2>
-                {masterFunction(
-                  this.state.data.rates && this.state.data.rates.BRL,
-                  this.state.yesterdayData.rates &&
-                    this.state.yesterdayData.rates.BRL
-                )}
-                USD
-              </h2>
+              <div>
+                <h2>
+                  {calculateDifference(
+                    this.props.todayData.BRL,
+                    this.props.yesterdayData.BRL
+                  )}
+                </h2>
+                <h2>USD</h2>
+              </div>
             </ChangeContainer>
           </li>
           <li>
@@ -255,13 +296,42 @@ class Exchange extends Component {
                   <Flag code="ca" height="30" />
                   <p>
                     {this.roundToThree(
-                      this.state.data.rates && this.state.data.rates.CAD
-                    ) * this.props.cad}
+                      this.props.todayData.CAD * this.props.cad
+                    )}
                   </p>
                   <p> CAD </p>
                 </RateContainer>
               </CardContent>
             </Card>
+            <ChangeContainer>
+              <FontAwesomeIcon
+                icon={
+                  calculateDifference(
+                    this.props.todayData.CAD,
+                    this.props.yesterdayData.CAD
+                  ) > 0
+                    ? faArrowUp
+                    : faArrowDown
+                }
+                style={
+                  calculateDifference(
+                    this.props.todayData.CAD,
+                    this.props.yesterdayData.CAD
+                  ) > 0
+                    ? { color: "green" }
+                    : { color: "red" }
+                }
+              />
+              <div>
+                <h2>
+                  {calculateDifference(
+                    this.props.todayData.CAD,
+                    this.props.yesterdayData.CAD
+                  )}
+                </h2>
+                <h2>USD</h2>
+              </div>
+            </ChangeContainer>
           </li>
           <li>
             <h2>Swiss Franc</h2>
@@ -285,13 +355,42 @@ class Exchange extends Component {
                   <Flag code="ch" height="30" />
                   <p>
                     {this.roundToThree(
-                      this.state.data.rates && this.state.data.rates.CHF
-                    ) * this.props.chf}
+                      this.props.todayData.CHF * this.props.chf
+                    )}
                   </p>
                   <p>CHF</p>
                 </RateContainer>
               </CardContent>
             </Card>
+            <ChangeContainer>
+              <FontAwesomeIcon
+                icon={
+                  calculateDifference(
+                    this.props.todayData.CHF,
+                    this.props.yesterdayData.CHF
+                  ) > 0
+                    ? faArrowUp
+                    : faArrowDown
+                }
+                style={
+                  calculateDifference(
+                    this.props.todayData.CHF,
+                    this.props.yesterdayData.CHF
+                  ) > 0
+                    ? { color: "green" }
+                    : { color: "red" }
+                }
+              />
+              <div>
+                <h2>
+                  {calculateDifference(
+                    this.props.todayData.CHF,
+                    this.props.yesterdayData.CHF
+                  )}
+                </h2>
+                <h2>USD</h2>
+              </div>
+            </ChangeContainer>
           </li>
           <li>
             <h2>Chinese Yuan</h2>
@@ -315,13 +414,42 @@ class Exchange extends Component {
                   <Flag code="cn" height="30" />
                   <p>
                     {this.roundToThree(
-                      this.state.data.rates && this.state.data.rates.CNY
-                    ) * this.props.cny}
+                      this.props.todayData.CNY * this.props.cny
+                    )}
                   </p>
                   <p>CNY</p>
                 </RateContainer>
               </CardContent>
             </Card>
+            <ChangeContainer>
+              <FontAwesomeIcon
+                icon={
+                  calculateDifference(
+                    this.props.todayData.CNY,
+                    this.props.yesterdayData.CNY
+                  ) > 0
+                    ? faArrowUp
+                    : faArrowDown
+                }
+                style={
+                  calculateDifference(
+                    this.props.todayData.CNY,
+                    this.props.yesterdayData.CNY
+                  ) > 0
+                    ? { color: "green" }
+                    : { color: "red" }
+                }
+              />
+              <div>
+                <h2>
+                  {calculateDifference(
+                    this.props.todayData.CNY,
+                    this.props.yesterdayData.CNY
+                  )}
+                </h2>
+                <h2>USD</h2>
+              </div>
+            </ChangeContainer>
           </li>
           <li>
             <h2>Czech Koruna</h2>
@@ -345,13 +473,42 @@ class Exchange extends Component {
                   <Flag code="cz" height="30" />
                   <p>
                     {this.roundToThree(
-                      this.state.data.rates && this.state.data.rates.CZK
-                    ) * this.props.czk}
+                      this.props.todayData.CZK * this.props.czk
+                    )}
                   </p>
                   <p>CZK</p>
                 </RateContainer>
               </CardContent>
             </Card>
+            <ChangeContainer>
+              <FontAwesomeIcon
+                icon={
+                  calculateDifference(
+                    this.props.todayData.CZK,
+                    this.props.yesterdayData.CZK
+                  ) > 0
+                    ? faArrowUp
+                    : faArrowDown
+                }
+                style={
+                  calculateDifference(
+                    this.props.todayData.CZK,
+                    this.props.yesterdayData.CZK
+                  ) > 0
+                    ? { color: "green" }
+                    : { color: "red" }
+                }
+              />
+              <div>
+                <h2>
+                  {calculateDifference(
+                    this.props.todayData.CZK,
+                    this.props.yesterdayData.CZK
+                  )}
+                </h2>
+                <h2>USD</h2>
+              </div>
+            </ChangeContainer>
           </li>
           <li>
             <h2>Danish Krone</h2>
@@ -375,13 +532,42 @@ class Exchange extends Component {
                   <Flag code="dk" height="30" />
                   <p>
                     {this.roundToThree(
-                      this.state.data.rates && this.state.data.rates.DKK
-                    ) * this.props.dkk}
+                      this.props.todayData.DKK * this.props.dkk
+                    )}
                   </p>
                   <p>DKK</p>
                 </RateContainer>
               </CardContent>
             </Card>
+            <ChangeContainer>
+              <FontAwesomeIcon
+                icon={
+                  calculateDifference(
+                    this.props.todayData.DKK,
+                    this.props.yesterdayData.DKK
+                  ) > 0
+                    ? faArrowUp
+                    : faArrowDown
+                }
+                style={
+                  calculateDifference(
+                    this.props.todayData.DKK,
+                    this.props.yesterdayData.DKK
+                  ) > 0
+                    ? { color: "green" }
+                    : { color: "red" }
+                }
+              />
+              <div>
+                <h2>
+                  {calculateDifference(
+                    this.props.todayData.DKK,
+                    this.props.yesterdayData.DKK
+                  )}
+                </h2>
+                <h2>USD</h2>
+              </div>
+            </ChangeContainer>
           </li>
           <li>
             <h2>Euro</h2>
@@ -405,13 +591,42 @@ class Exchange extends Component {
                   <Flag code="e" height="30" />
                   <p>
                     {this.roundToThree(
-                      this.state.data.rates && this.state.data.rates.EUR
-                    ) * this.props.eur}
+                      this.props.todayData.EUR * this.props.eur
+                    )}
                   </p>
                   <p>EUR</p>
                 </RateContainer>
               </CardContent>
             </Card>
+            <ChangeContainer>
+              <FontAwesomeIcon
+                icon={
+                  calculateDifference(
+                    this.props.todayData.EUR,
+                    this.props.yesterdayData.EUR
+                  ) > 0
+                    ? faArrowUp
+                    : faArrowDown
+                }
+                style={
+                  calculateDifference(
+                    this.props.todayData.EUR,
+                    this.props.yesterdayData.EUR
+                  ) > 0
+                    ? { color: "green" }
+                    : { color: "red" }
+                }
+              />
+              <div>
+                <h2>
+                  {calculateDifference(
+                    this.props.todayData.EUR,
+                    this.props.yesterdayData.EUR
+                  )}
+                </h2>
+                <h2>USD</h2>
+              </div>
+            </ChangeContainer>
           </li>
           <li>
             <h2>Great British Pound</h2>
@@ -435,13 +650,42 @@ class Exchange extends Component {
                   <Flag code="gb" height="30" />
                   <p>
                     {this.roundToThree(
-                      this.state.data.rates && this.state.data.rates.GBP
-                    ) * this.props.gbp}
+                      this.props.todayData.GBP * this.props.gbp
+                    )}
                   </p>
                   <p>GBP</p>
                 </RateContainer>
               </CardContent>
             </Card>
+            <ChangeContainer>
+              <FontAwesomeIcon
+                icon={
+                  calculateDifference(
+                    this.props.todayData.GBP,
+                    this.props.yesterdayData.GBP
+                  ) > 0
+                    ? faArrowUp
+                    : faArrowDown
+                }
+                style={
+                  calculateDifference(
+                    this.props.todayData.GBP,
+                    this.props.yesterdayData.GBP
+                  ) > 0
+                    ? { color: "green" }
+                    : { color: "red" }
+                }
+              />
+              <div>
+                <h2>
+                  {calculateDifference(
+                    this.props.todayData.GBP,
+                    this.props.yesterdayData.GBP
+                  )}
+                </h2>
+                <h2> USD</h2>
+              </div>
+            </ChangeContainer>
           </li>
           <li>
             <h2>Hong Kong Dollar</h2>
@@ -465,13 +709,42 @@ class Exchange extends Component {
                   <Flag code="hk" height="30" />
                   <p>
                     {this.roundToThree(
-                      this.state.data.rates && this.state.data.rates.HKD
-                    ) * this.props.hkd}
+                      this.props.todayData.HKD * this.props.hkd
+                    )}
                   </p>
                   <p>HKD</p>
                 </RateContainer>
               </CardContent>
             </Card>
+            <ChangeContainer>
+              <FontAwesomeIcon
+                icon={
+                  calculateDifference(
+                    this.props.todayData.HKD,
+                    this.props.yesterdayData.HKD
+                  ) > 0
+                    ? faArrowUp
+                    : faArrowDown
+                }
+                style={
+                  calculateDifference(
+                    this.props.todayData.HKD,
+                    this.props.yesterdayData.HKD
+                  ) > 0
+                    ? { color: "green" }
+                    : { color: "red" }
+                }
+              />
+              <div>
+                <h2>
+                  {calculateDifference(
+                    this.props.todayData.HKD,
+                    this.props.yesterdayData.HKD
+                  )}
+                </h2>
+                <h2>USD</h2>
+              </div>
+            </ChangeContainer>
           </li>
           <li>
             <h2>Hungarian Forint</h2>
@@ -495,13 +768,42 @@ class Exchange extends Component {
                   <Flag code="hu" height="30" />
                   <p>
                     {this.roundToThree(
-                      this.state.data.rates && this.state.data.rates.HUF
-                    ) * this.props.huf}
+                      this.props.todayData.HUF * this.props.huf
+                    )}
                   </p>
                   <p>HUF</p>
                 </RateContainer>
               </CardContent>
             </Card>
+            <ChangeContainer>
+              <FontAwesomeIcon
+                icon={
+                  calculateDifference(
+                    this.props.todayData.HUF,
+                    this.props.yesterdayData.HUF
+                  ) > 0
+                    ? faArrowUp
+                    : faArrowDown
+                }
+                style={
+                  calculateDifference(
+                    this.props.todayData.HUF,
+                    this.props.yesterdayData.HUF
+                  ) > 0
+                    ? { color: "green" }
+                    : { color: "red" }
+                }
+              />
+              <div>
+                <h2>
+                  {calculateDifference(
+                    this.props.todayData.HUF,
+                    this.props.yesterdayData.HUF
+                  )}
+                </h2>
+                <h2>USD</h2>
+              </div>
+            </ChangeContainer>
           </li>
           <li>
             <h2>Indonesian Rupiah</h2>
@@ -525,13 +827,42 @@ class Exchange extends Component {
                   <Flag code="id" height="30" />
                   <p>
                     {this.roundToThree(
-                      this.state.data.rates && this.state.data.rates.IDR
-                    ) * this.props.idr}
+                      this.props.todayData.IDR * this.props.idr
+                    )}
                   </p>
                   <p>IDR</p>
                 </RateContainer>
               </CardContent>
             </Card>
+            <ChangeContainer>
+              <FontAwesomeIcon
+                icon={
+                  calculateDifference(
+                    this.props.todayData.IDR,
+                    this.props.yesterdayData.IDR
+                  ) > 0
+                    ? faArrowUp
+                    : faArrowDown
+                }
+                style={
+                  calculateDifference(
+                    this.props.todayData.IDR,
+                    this.props.yesterdayData.IDR
+                  ) > 0
+                    ? { color: "green" }
+                    : { color: "red" }
+                }
+              />
+              <div>
+                <h2>
+                  {calculateDifference(
+                    this.props.todayData.IDR,
+                    this.props.yesterdayData.IDR
+                  )}
+                </h2>
+                <h2>USD</h2>
+              </div>
+            </ChangeContainer>
           </li>
           <li>
             <h2>Israeli New Shekel</h2>
@@ -555,13 +886,42 @@ class Exchange extends Component {
                   <Flag code="il" height="30" />
                   <p>
                     {this.roundToThree(
-                      this.state.data.rates && this.state.data.rates.ILS
-                    ) * this.props.ils}
+                      this.props.todayData.ILS * this.props.ils
+                    )}
                   </p>
                   <p>ILS</p>
                 </RateContainer>
               </CardContent>
             </Card>
+            <ChangeContainer>
+              <FontAwesomeIcon
+                icon={
+                  calculateDifference(
+                    this.props.todayData.ILS,
+                    this.props.yesterdayData.ILS
+                  ) > 0
+                    ? faArrowUp
+                    : faArrowDown
+                }
+                style={
+                  calculateDifference(
+                    this.props.todayData.ILS,
+                    this.props.yesterdayData.ILS
+                  ) > 0
+                    ? { color: "green" }
+                    : { color: "red" }
+                }
+              />
+              <div>
+                <h2>
+                  {calculateDifference(
+                    this.props.todayData.ILS,
+                    this.props.yesterdayData.ILS
+                  )}
+                  USD
+                </h2>
+              </div>
+            </ChangeContainer>
           </li>
           <li>
             <h2>Indian Rupee</h2>
@@ -585,13 +945,42 @@ class Exchange extends Component {
                   <Flag code="in" height="30" />
                   <p>
                     {this.roundToThree(
-                      this.state.data.rates && this.state.data.rates.INR
-                    ) * this.props.inr}
+                      this.props.todayData.INR * this.props.inr
+                    )}
                   </p>
                   <p>INR</p>
                 </RateContainer>
               </CardContent>
             </Card>
+            <ChangeContainer>
+              <FontAwesomeIcon
+                icon={
+                  calculateDifference(
+                    this.props.todayData.INR,
+                    this.props.yesterdayData.INR
+                  ) > 0
+                    ? faArrowUp
+                    : faArrowDown
+                }
+                style={
+                  calculateDifference(
+                    this.props.todayData.INR,
+                    this.props.yesterdayData.INR
+                  ) > 0
+                    ? { color: "green" }
+                    : { color: "red" }
+                }
+              />
+              <div>
+                <h2>
+                  {calculateDifference(
+                    this.props.todayData.INR,
+                    this.props.yesterdayData.INR
+                  )}
+                </h2>
+                <h2>USD</h2>
+              </div>
+            </ChangeContainer>
           </li>
           <li>
             <h2>Icelandic Króna</h2>
@@ -615,13 +1004,42 @@ class Exchange extends Component {
                   <Flag code="is" height="30" />
                   <p>
                     {this.roundToThree(
-                      this.state.data.rates && this.state.data.rates.ISK
-                    ) * this.props.isk}
+                      this.props.todayData.ISK * this.props.isk
+                    )}
                   </p>
                   <p>ISK</p>
                 </RateContainer>
               </CardContent>
             </Card>
+            <ChangeContainer>
+              <FontAwesomeIcon
+                icon={
+                  calculateDifference(
+                    this.props.todayData.ISK,
+                    this.props.yesterdayData.ISK
+                  ) > 0
+                    ? faArrowUp
+                    : faArrowDown
+                }
+                style={
+                  calculateDifference(
+                    this.props.todayData.ISK,
+                    this.props.yesterdayData.ISK
+                  ) > 0
+                    ? { color: "green" }
+                    : { color: "red" }
+                }
+              />
+              <div>
+                <h2>
+                  {calculateDifference(
+                    this.props.todayData.ISK,
+                    this.props.yesterdayData.ISK
+                  )}
+                </h2>
+                <h2>USD</h2>
+              </div>
+            </ChangeContainer>
           </li>
           <li>
             <h2>Japanese Yen</h2>
@@ -645,13 +1063,42 @@ class Exchange extends Component {
                   <Flag code="jp" height="30" />
                   <p>
                     {this.roundToThree(
-                      this.state.data.rates && this.state.data.rates.JPY
-                    ) * this.props.jpy}
+                      this.props.todayData.JPY * this.props.jpy
+                    )}
                   </p>
                   <p>JPY</p>
                 </RateContainer>
               </CardContent>
             </Card>
+            <ChangeContainer>
+              <FontAwesomeIcon
+                icon={
+                  calculateDifference(
+                    this.props.todayData.JPY,
+                    this.props.yesterdayData.JPY
+                  ) > 0
+                    ? faArrowUp
+                    : faArrowDown
+                }
+                style={
+                  calculateDifference(
+                    this.props.todayData.JPY,
+                    this.props.yesterdayData.JPY
+                  ) > 0
+                    ? { color: "green" }
+                    : { color: "red" }
+                }
+              />
+              <div>
+                <h2>
+                  {calculateDifference(
+                    this.props.todayData.JPY,
+                    this.props.yesterdayData.JPY
+                  )}
+                </h2>
+                <h2>USD</h2>
+              </div>
+            </ChangeContainer>
           </li>
           <li>
             <h2>South Korean Won</h2>
@@ -675,13 +1122,42 @@ class Exchange extends Component {
                   <Flag code="kr" height="30" />
                   <p>
                     {this.roundToThree(
-                      this.state.data.rates && this.state.data.rates.KRW
-                    ) * this.state.krw}
+                      this.props.todayData.KRW * this.props.krw
+                    )}
                   </p>
                   <p>KRW</p>
                 </RateContainer>
               </CardContent>
             </Card>
+            <ChangeContainer>
+              <FontAwesomeIcon
+                icon={
+                  calculateDifference(
+                    this.props.todayData.KRW,
+                    this.props.yesterdayData.KRW
+                  ) > 0
+                    ? faArrowUp
+                    : faArrowDown
+                }
+                style={
+                  calculateDifference(
+                    this.props.todayData.KRW,
+                    this.props.yesterdayData.KRW
+                  ) > 0
+                    ? { color: "green" }
+                    : { color: "red" }
+                }
+              />
+              <div>
+                <h2>
+                  {calculateDifference(
+                    this.props.todayData.KRW,
+                    this.props.yesterdayData.KRW
+                  )}
+                </h2>
+                <h2>USD</h2>
+              </div>
+            </ChangeContainer>
           </li>
           <li>
             <h2>Mexican Peso</h2>
@@ -705,13 +1181,42 @@ class Exchange extends Component {
                   <Flag code="mx" height="30" />
                   <p>
                     {this.roundToThree(
-                      this.state.data.rates && this.state.data.rates.MXN
-                    ) * this.props.mxn}
+                      this.props.todayData.MXN * this.props.mxn
+                    )}
                   </p>
                   <p>MXN</p>
                 </RateContainer>
               </CardContent>
             </Card>
+            <ChangeContainer>
+              <FontAwesomeIcon
+                icon={
+                  calculateDifference(
+                    this.props.todayData.MXN,
+                    this.props.yesterdayData.MXN
+                  ) > 0
+                    ? faArrowUp
+                    : faArrowDown
+                }
+                style={
+                  calculateDifference(
+                    this.props.todayData.MXN,
+                    this.props.yesterdayData.MXN
+                  ) > 0
+                    ? { color: "green" }
+                    : { color: "red" }
+                }
+              />
+              <div>
+                <h2>
+                  {calculateDifference(
+                    this.props.todayData.MXN,
+                    this.props.yesterdayData.MXN
+                  )}
+                </h2>
+                <h2>USD</h2>
+              </div>
+            </ChangeContainer>
           </li>
           <li>
             <h2>Malaysian Ringgit</h2>
@@ -735,13 +1240,42 @@ class Exchange extends Component {
                   <Flag code="my" height="30" />
                   <p>
                     {this.roundToThree(
-                      this.state.data.rates && this.state.data.rates.MYR
-                    ) * this.props.myr}
+                      this.props.todayData.MYR * this.props.myr
+                    )}
                   </p>
                   <p>MYR</p>
                 </RateContainer>
               </CardContent>
             </Card>
+            <ChangeContainer>
+              <FontAwesomeIcon
+                icon={
+                  calculateDifference(
+                    this.props.todayData.MYR,
+                    this.props.yesterdayData.MYR
+                  ) > 0
+                    ? faArrowUp
+                    : faArrowDown
+                }
+                style={
+                  calculateDifference(
+                    this.props.todayData.MYR,
+                    this.props.yesterdayData.MYR
+                  ) > 0
+                    ? { color: "green" }
+                    : { color: "red" }
+                }
+              />
+              <div>
+                <h2>
+                  {calculateDifference(
+                    this.props.todayData.MYR,
+                    this.props.yesterdayData.MYR
+                  )}
+                </h2>
+                <h2>USD</h2>
+              </div>
+            </ChangeContainer>
           </li>
           <li>
             <h2>Norwegian Krone </h2>
@@ -765,13 +1299,42 @@ class Exchange extends Component {
                   <Flag code="no" height="30" />
                   <p>
                     {this.roundToThree(
-                      this.state.data.rates && this.state.data.rates.NOK
-                    ) * this.props.nok}
+                      this.props.todayData.NOK * this.props.nok
+                    )}
                   </p>
                   <p>NOK</p>
                 </RateContainer>
               </CardContent>
             </Card>
+            <ChangeContainer>
+              <FontAwesomeIcon
+                icon={
+                  calculateDifference(
+                    this.props.todayData.NOK,
+                    this.props.yesterdayData.NOK
+                  ) > 0
+                    ? faArrowUp
+                    : faArrowDown
+                }
+                style={
+                  calculateDifference(
+                    this.props.todayData.NOK,
+                    this.props.yesterdayData.NOK
+                  ) > 0
+                    ? { color: "green" }
+                    : { color: "red" }
+                }
+              />
+              <div>
+                <h2>
+                  {calculateDifference(
+                    this.props.todayData.NOK,
+                    this.props.yesterdayData.NOK
+                  )}
+                </h2>
+                <h2>USD</h2>
+              </div>
+            </ChangeContainer>
           </li>
           <li>
             <h2>New Zealand Dollar</h2>
@@ -795,13 +1358,42 @@ class Exchange extends Component {
                   <Flag code="nz" height="30" />
                   <p>
                     {this.roundToThree(
-                      this.state.data.rates && this.state.data.rates.NZD
-                    ) * this.props.nzd}
+                      this.props.todayData.NZD * this.props.nzd
+                    )}
                   </p>
                   <p>NZD</p>
                 </RateContainer>
               </CardContent>
             </Card>
+            <ChangeContainer>
+              <FontAwesomeIcon
+                icon={
+                  calculateDifference(
+                    this.props.todayData.NZD,
+                    this.props.yesterdayData.NZD
+                  ) > 0
+                    ? faArrowUp
+                    : faArrowDown
+                }
+                style={
+                  calculateDifference(
+                    this.props.todayData.NZD,
+                    this.props.yesterdayData.NZD
+                  ) > 0
+                    ? { color: "green" }
+                    : { color: "red" }
+                }
+              />
+              <div>
+                <h2>
+                  {calculateDifference(
+                    this.props.todayData.NZD,
+                    this.props.yesterdayData.NZD
+                  )}
+                </h2>
+                <h2> USD</h2>
+              </div>
+            </ChangeContainer>
           </li>
           <li>
             <h2>Philippine Piso</h2>
@@ -825,13 +1417,42 @@ class Exchange extends Component {
                   <Flag code="ph" height="30" />
                   <p>
                     {this.roundToThree(
-                      this.state.data.rates && this.state.data.rates.PHP
-                    ) * this.props.php}
+                      this.props.todayData.PHP * this.props.php
+                    )}
                   </p>
                   <p>PHP</p>
                 </RateContainer>
               </CardContent>
             </Card>
+            <ChangeContainer>
+              <FontAwesomeIcon
+                icon={
+                  calculateDifference(
+                    this.props.todayData.PHP,
+                    this.props.yesterdayData.PHP
+                  ) > 0
+                    ? faArrowUp
+                    : faArrowDown
+                }
+                style={
+                  calculateDifference(
+                    this.props.todayData.PHP,
+                    this.props.yesterdayData.PHP
+                  ) > 0
+                    ? { color: "green" }
+                    : { color: "red" }
+                }
+              />
+              <div>
+                <h2>
+                  {calculateDifference(
+                    this.props.todayData.PHP,
+                    this.props.yesterdayData.PHP
+                  )}
+                </h2>
+                <h2>USD</h2>
+              </div>
+            </ChangeContainer>
           </li>
           <li>
             <h2>Poland złoty</h2>
@@ -855,13 +1476,42 @@ class Exchange extends Component {
                   <p>
                     <Flag code="pl" height="30" />
                     {this.roundToThree(
-                      this.state.data.rates && this.state.data.rates.PLN
-                    ) * this.props.pln}
+                      this.props.todayData.PLN * this.props.pln
+                    )}
                   </p>
                   <p>PLN</p>
                 </RateContainer>
               </CardContent>
             </Card>
+            <ChangeContainer>
+              <FontAwesomeIcon
+                icon={
+                  calculateDifference(
+                    this.props.todayData.PLN,
+                    this.props.yesterdayData.PLN
+                  ) > 0
+                    ? faArrowUp
+                    : faArrowDown
+                }
+                style={
+                  calculateDifference(
+                    this.props.todayData.PLN,
+                    this.props.yesterdayData.PLN
+                  ) > 0
+                    ? { color: "green" }
+                    : { color: "red" }
+                }
+              />
+              <div>
+                <h2>
+                  {calculateDifference(
+                    this.props.todayData.PLN,
+                    this.props.yesterdayData.PLN
+                  )}
+                </h2>
+                <h2>USD</h2>
+              </div>
+            </ChangeContainer>
           </li>
           <li>
             <h2>Romanian Leu</h2>
@@ -885,13 +1535,42 @@ class Exchange extends Component {
                   <Flag code="ro" height="30" />
                   <p>
                     {this.roundToThree(
-                      this.state.data.rates && this.state.data.rates.RON
-                    ) * this.props.ron}
+                      this.props.todayData.RON * this.props.ron
+                    )}
                   </p>
                   <p>RON</p>
                 </RateContainer>
               </CardContent>
             </Card>
+            <ChangeContainer>
+              <FontAwesomeIcon
+                icon={
+                  calculateDifference(
+                    this.props.todayData.RON,
+                    this.props.yesterdayData.RON
+                  ) > 0
+                    ? faArrowUp
+                    : faArrowDown
+                }
+                style={
+                  calculateDifference(
+                    this.props.todayData.RON,
+                    this.props.yesterdayData.RON
+                  ) > 0
+                    ? { color: "green" }
+                    : { color: "red" }
+                }
+              />
+              <div>
+                <h2>
+                  {calculateDifference(
+                    this.props.todayData.RON,
+                    this.props.yesterdayData.RON
+                  )}
+                </h2>
+                <h2>USD</h2>
+              </div>
+            </ChangeContainer>
           </li>
           <li>
             <h2>Russian Ruble </h2>
@@ -915,13 +1594,42 @@ class Exchange extends Component {
                   <Flag code="ru" height="30" />
                   <p>
                     {this.roundToThree(
-                      this.state.data.rates && this.state.data.rates.RUB
-                    ) * this.props.rub}
+                      this.props.todayData.RUB * this.props.rub
+                    )}
                   </p>
                   <p>RUB</p>
                 </RateContainer>
               </CardContent>
             </Card>
+            <ChangeContainer>
+              <FontAwesomeIcon
+                icon={
+                  calculateDifference(
+                    this.props.todayData.RUB,
+                    this.props.yesterdayData.RUB
+                  ) > 0
+                    ? faArrowUp
+                    : faArrowDown
+                }
+                style={
+                  calculateDifference(
+                    this.props.todayData.RUB,
+                    this.props.yesterdayData.RUB
+                  ) > 0
+                    ? { color: "green" }
+                    : { color: "red" }
+                }
+              />
+              <div>
+                <h2>
+                  {calculateDifference(
+                    this.props.todayData.RUB,
+                    this.props.yesterdayData.RUB
+                  )}
+                </h2>
+                <h2>USD</h2>
+              </div>
+            </ChangeContainer>
           </li>
           <li>
             <h2>Swedish Krona</h2>
@@ -945,13 +1653,42 @@ class Exchange extends Component {
                   <Flag code="se" height="30" />
                   <p>
                     {this.roundToThree(
-                      this.state.data.rates && this.state.data.rates.SEK
-                    ) * this.props.sek}
+                      this.props.todayData.SEK * this.props.sek
+                    )}
                   </p>
                   <p>SEK</p>
                 </RateContainer>
               </CardContent>
             </Card>
+            <ChangeContainer>
+              <FontAwesomeIcon
+                icon={
+                  calculateDifference(
+                    this.props.todayData.SEK,
+                    this.props.yesterdayData.SEK
+                  ) > 0
+                    ? faArrowUp
+                    : faArrowDown
+                }
+                style={
+                  calculateDifference(
+                    this.props.todayData.SEK,
+                    this.props.yesterdayData.SEK
+                  ) > 0
+                    ? { color: "green" }
+                    : { color: "red" }
+                }
+              />
+              <div>
+                <h2>
+                  {calculateDifference(
+                    this.props.todayData.SEK,
+                    this.props.yesterdayData.SEK
+                  )}
+                </h2>
+                <h2>USD</h2>
+              </div>
+            </ChangeContainer>
           </li>
           <li>
             <h2>Singaporean Dollar</h2>
@@ -975,13 +1712,42 @@ class Exchange extends Component {
                   <Flag code="sg" height="30" />
                   <p>
                     {this.roundToThree(
-                      this.state.data.rates && this.state.data.rates.SGD
-                    ) * this.props.sgd}
+                      this.props.todayData.SGD * this.props.sgd
+                    )}
                   </p>
                   <p>SGD</p>
                 </RateContainer>
               </CardContent>
             </Card>
+            <ChangeContainer>
+              <FontAwesomeIcon
+                icon={
+                  calculateDifference(
+                    this.props.todayData.SGD,
+                    this.props.yesterdayData.SGD
+                  ) > 0
+                    ? faArrowUp
+                    : faArrowDown
+                }
+                style={
+                  calculateDifference(
+                    this.props.todayData.SGD,
+                    this.props.yesterdayData.SGD
+                  ) > 0
+                    ? { color: "green" }
+                    : { color: "red" }
+                }
+              />
+              <div>
+                <h2>
+                  {calculateDifference(
+                    this.props.todayData.SGD,
+                    this.props.yesterdayData.SGD
+                  )}
+                </h2>
+                <h2>USD</h2>
+              </div>
+            </ChangeContainer>
           </li>
           <li>
             <h2>Thai Baht</h2>
@@ -1005,13 +1771,42 @@ class Exchange extends Component {
                   <Flag code="th" height="30" />
                   <p>
                     {this.roundToThree(
-                      this.state.data.rates && this.state.data.rates.THB
-                    ) * this.props.thb}
+                      this.props.todayData.THB * this.props.thb
+                    )}
                   </p>
                   <p>THB</p>
                 </RateContainer>
               </CardContent>
             </Card>
+            <ChangeContainer>
+              <FontAwesomeIcon
+                icon={
+                  calculateDifference(
+                    this.props.todayData.THB,
+                    this.props.yesterdayData.THB
+                  ) > 0
+                    ? faArrowUp
+                    : faArrowDown
+                }
+                style={
+                  calculateDifference(
+                    this.props.todayData.THB,
+                    this.props.yesterdayData.THB
+                  ) > 0
+                    ? { color: "green" }
+                    : { color: "red" }
+                }
+              />
+              <div>
+                <h2>
+                  {calculateDifference(
+                    this.props.todayData.THB,
+                    this.props.yesterdayData.THB
+                  )}
+                </h2>
+                <h2>USD</h2>
+              </div>
+            </ChangeContainer>
           </li>
           <li>
             <h2>Turkish Lira</h2>
@@ -1035,13 +1830,42 @@ class Exchange extends Component {
                   <Flag code="tr" height="30" />
                   <p>
                     {this.roundToThree(
-                      this.state.data.rates && this.state.data.rates.TRY
-                    ) * this.props.try}
+                      this.props.todayData.TRY * this.props.try
+                    )}
                   </p>
                   <p>TRY</p>
                 </RateContainer>
               </CardContent>
             </Card>
+            <ChangeContainer>
+              <FontAwesomeIcon
+                icon={
+                  calculateDifference(
+                    this.props.todayData.TRY,
+                    this.props.yesterdayData.TRY
+                  ) > 0
+                    ? faArrowUp
+                    : faArrowDown
+                }
+                style={
+                  calculateDifference(
+                    this.props.todayData.TRY,
+                    this.props.yesterdayData.TRY
+                  ) > 0
+                    ? { color: "green" }
+                    : { color: "red" }
+                }
+              />
+              <div>
+                <h2>
+                  {calculateDifference(
+                    this.props.todayData.TRY,
+                    this.props.yesterdayData.TRY
+                  )}
+                </h2>
+                <h2>USD</h2>
+              </div>
+            </ChangeContainer>
           </li>
           <li>
             <h2>South African Rand</h2>
@@ -1063,22 +1887,44 @@ class Exchange extends Component {
                 </FormControl>
                 <RateContainer>
                   <Flag code="za" height="30" />
-                  {/* {this.state.input31 == 0
-                    ? "Enter USD"
-                    : `${this.roundToThree(
-                        this.state.data.rates && this.state.data.rates.ZAR
-                      ) * this.state.input31} ZAR`} */}
-                  <Flag code="za" height="30" />
                   <p>
                     {this.roundToThree(
-                      this.state.data.rates && this.state.data.rates.ZAR
-                    ) * this.props.zar}
+                      this.props.todayData.ZAR * this.props.zar
+                    )}
                   </p>
                   <p>ZAR</p>
                 </RateContainer>
               </CardContent>
             </Card>
-            {console.log(this.props)}
+            <ChangeContainer>
+              <FontAwesomeIcon
+                icon={
+                  calculateDifference(
+                    this.props.todayData.ZAR,
+                    this.props.yesterdayData.ZAR
+                  ) > 0
+                    ? faArrowUp
+                    : faArrowDown
+                }
+                style={
+                  calculateDifference(
+                    this.props.todayData.ZAR,
+                    this.props.yesterdayData.ZAR
+                  ) > 0
+                    ? { color: "green" }
+                    : { color: "red" }
+                }
+              />
+              <div>
+                <h2>
+                  {calculateDifference(
+                    this.props.todayData.ZAR,
+                    this.props.yesterdayData.ZAR
+                  )}
+                </h2>
+                <h2>USD</h2>
+              </div>
+            </ChangeContainer>
           </li>
         </ListContainer>
       </Wrapper>
@@ -1117,7 +1963,9 @@ export default connect(state => ({
   sgd: state.SetPrice.sgd,
   thb: state.SetPrice.thb,
   try: state.SetPrice.try,
-  zar: state.SetPrice.zar
+  zar: state.SetPrice.zar,
+  todayData: state.PriceChange.todayData,
+  yesterdayData: state.PriceChange.yesterdayData
 }))(Exchange);
 
 const Wrapper = styled.div`
@@ -1148,6 +1996,12 @@ const ChangeContainer = styled.div`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  width: 70%;
+  width: 90%;
   margin: 0 auto;
+  div {
+    display: flex;
+    h2:nth-child(2) {
+      margin-left: 5%;
+    }
+  }
 `;
