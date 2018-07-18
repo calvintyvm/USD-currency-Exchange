@@ -3,6 +3,7 @@ import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
+import { Link } from "react-router-dom";
 import IconButton from "@material-ui/core/IconButton";
 import "./styles.css";
 
@@ -16,8 +17,12 @@ class Header extends Component {
               Home
             </Typography>
             <div>
-              <Button color="inherit">USD Currency</Button>
-              <Button color="inherit">BITCOIN Currency</Button>
+              <Link to="/">
+                <Button color="inherit">USD Currency</Button>
+              </Link>
+              <Link to="/crypto">
+                <Button color="inherit">BITCOIN Currency</Button>
+              </Link>
               <Button color="inherit">Contact</Button>
             </div>
           </Toolbar>
